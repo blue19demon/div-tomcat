@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app>
+	<servlets>
+		<servlet>
+			<servlet-name>regServlet</servlet-name>
+			<servlet-class>com.tomcat.servlets.RegisterServlet</servlet-class>
+		</servlet>
+		<servlet>
+			<servlet-name>loginServlet</servlet-name>
+			<servlet-class>com.tomcat.servlets.LoginServlet</servlet-class>
+		</servlet>
+		<servlet>
+			<servlet-name>formServlet</servlet-name>
+			<servlet-class>com.tomcat.servlets.PageServlet</servlet-class>
+		</servlet>
+	</servlets>
+	<servlet-mapping>
+		<servlet-name>loginServlet</servlet-name>
+		<url-pattern>/login</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>regServlet</servlet-name>
+		<url-pattern>/reg</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>formServlet</servlet-name>
+		<url-pattern>/form</url-pattern>
+	</servlet-mapping>
+</web-app>
