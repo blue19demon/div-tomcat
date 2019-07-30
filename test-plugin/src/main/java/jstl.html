@@ -29,15 +29,24 @@
 		你的工资为 :
 		<out value="${salary}"></out>
 	</p>
+	
+	<if test="${kv.id}>2">
+        <p>id大于2</p>
+     </if>
+     
+     <if test="${num}>2000">
+        <p>大于2000</p>
+     </if>
+     
 	<choose>
-		<when test="${salary <= 0}">
-                       太惨了。
+		<when test="${num}>=0">
+                       <p>太惨了。</p>
         </when>
-		<when test="${salary > 1000}">
-                      不错的薪水，还能生活。
+		<when test="${num}>100">
+                      <p>不错的薪水，还能生活。</p>
         </when>
 		<otherwise>
-                      什么都没有。
+                      <p>什么都没有。</p>
         </otherwise>
 	</choose>
 </body>
