@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+	<div class="add_good_item_cont">
+		<span class="label_text"><span class="text-danger">*</span>商品品牌：</span>
+		<div class="add_good_form">
+			<div class="w500">
+				<div class="input-group">
+					<select class="form-control inline required"
+						data-live-search="true" name="brandId" id="goods_brand">
+						<forEach items="${kvList }" var="kv">
+						<option value="${kv.key}">${kv.value}</option>
+						</forEach>
+					</select>
+				</div>
+			</div>
+		</div>
+	</div>
+    <p>
+		你的姓名 :
+		<out value="${name}"></out>
+	</p>
+	<p>
+		你的工资为 :
+		<out value="${salary}"></out>
+	</p>
+	<choose>
+		<when test="${salary <= 0}">
+                       太惨了。
+        </when>
+		<when test="${salary > 1000}">
+                      不错的薪水，还能生活。
+        </when>
+		<otherwise>
+                      什么都没有。
+        </otherwise>
+	</choose>
+</body>
+</html>
