@@ -14,19 +14,23 @@ public class ReflectUtils {
 		try {
 			m = c.getDeclaredMethod("get" + StringUtils.fistCharUpperCase(keyFiledName));
 			return m.invoke(obj, new Object[] {});
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			e.printStackTrace();
 		}
 		return null;
 	}
 
-	public static Object invokeSet(Object obj, String filedName, String fieldType, Object value) {
+	public static Object invokeSet(Object obj, String filedName, String fieldType,
+			Object value) {
 		Class<? extends Object> c = obj.getClass();
 		Method m = null;
 		try {
-			m = c.getDeclaredMethod("set" + StringUtils.fistCharUpperCase(filedName), Class.forName(fieldType));
+			m = c.getDeclaredMethod("set" + StringUtils.fistCharUpperCase(filedName),
+					Class.forName(fieldType));
 			return m.invoke(obj, new Object[] { value });
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			e.printStackTrace();
 		}
 		return null;
@@ -34,23 +38,27 @@ public class ReflectUtils {
 
 	/**
 	 * ÅÐ¶ÏobjectÊÇ·ñÎª»ù±¾ÀàÐÍ
-	 * 
 	 * @param object
 	 * @return
 	 */
 	public static boolean isBaseType(Object object) {
-		if(object==null) {
+		if (object == null) {
 			return true;
 		}
 		Class<? extends Object> className = object.getClass();
-		if (className.equals(java.lang.String.class) || className.equals(java.lang.Integer.class)
-				|| className.equals(java.lang.Byte.class) || className.equals(java.lang.Long.class)
-				|| className.equals(java.lang.Double.class) || className.equals(java.lang.Float.class)
-				|| className.equals(java.lang.Character.class) || className.equals(java.lang.Short.class)
+		if (className.equals(java.lang.String.class)
+				|| className.equals(java.lang.Integer.class)
+				|| className.equals(java.lang.Byte.class)
+				|| className.equals(java.lang.Long.class)
+				|| className.equals(java.lang.Double.class)
+				|| className.equals(java.lang.Float.class)
+				|| className.equals(java.lang.Character.class)
+				|| className.equals(java.lang.Short.class)
 				|| className.equals(java.lang.Boolean.class)
 				|| className.equals(java.util.Date.class)) {
 			return true;
 		}
 		return false;
 	}
+
 }

@@ -66,6 +66,12 @@
 					<target>1.8</target>
 				</configuration>
 			</plugin>
+		    <!-- mvn spring-javaformat:apply重新格式化你的Java代码 -->
+			<plugin>
+				<groupId>io.spring.javaformat</groupId>
+				<artifactId>spring-javaformat-maven-plugin</artifactId>
+				<version>0.0.6</version>
+			</plugin>
 		</plugins>
 	</build>
 </project>

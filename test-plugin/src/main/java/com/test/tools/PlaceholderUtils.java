@@ -16,6 +16,7 @@ public class PlaceholderUtils {
 	 * Prefix for system property placeholders: "${"
 	 */
 	public static final String PLACEHOLDER_PREFIX = "${";
+
 	/**
 	 * Suffix for system property placeholders: "}"
 	 */
@@ -28,23 +29,31 @@ public class PlaceholderUtils {
 		StringBuffer buf = new StringBuffer(text);
 		int startIndex = buf.indexOf(PLACEHOLDER_PREFIX);
 		while (startIndex != -1) {
-			int endIndex = buf.indexOf(PLACEHOLDER_SUFFIX, startIndex + PLACEHOLDER_PREFIX.length());
+			int endIndex = buf.indexOf(PLACEHOLDER_SUFFIX,
+					startIndex + PLACEHOLDER_PREFIX.length());
 			if (endIndex != -1) {
-				String placeholder = buf.substring(startIndex + PLACEHOLDER_PREFIX.length(), endIndex);
+				String placeholder = buf
+						.substring(startIndex + PLACEHOLDER_PREFIX.length(), endIndex);
 				int nextIndex = endIndex + PLACEHOLDER_SUFFIX.length();
 				try {
 					String propVal = parameter.get(placeholder);
 					if (propVal != null) {
-						buf.replace(startIndex, endIndex + PLACEHOLDER_SUFFIX.length(), propVal);
+						buf.replace(startIndex, endIndex + PLACEHOLDER_SUFFIX.length(),
+								propVal);
 						nextIndex = startIndex + propVal.length();
-					} else {
-						System.out.println("Could not resolve placeholder '" + placeholder + "' in [" + text + "] ");
 					}
-				} catch (Exception ex) {
-					System.out.println("Could not resolve placeholder '" + placeholder + "' in [" + text + "]: " + ex);
+					else {
+						System.out.println("Could not resolve placeholder '" + placeholder
+								+ "' in [" + text + "] ");
+					}
+				}
+				catch (Exception ex) {
+					System.out.println("Could not resolve placeholder '" + placeholder
+							+ "' in [" + text + "]: " + ex);
 				}
 				startIndex = buf.indexOf(PLACEHOLDER_PREFIX, nextIndex);
-			} else {
+			}
+			else {
 				startIndex = -1;
 			}
 		}
