@@ -1,6 +1,10 @@
 package com.test.tag;
 
-public class OutTag extends TagSupport {
+/**
+ * @author Administrator
+ *
+ */
+public class OutTag extends BaseTagSupport {
 
 	@Override
 	public String tagName() {

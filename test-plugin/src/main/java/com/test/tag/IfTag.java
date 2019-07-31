@@ -1,6 +1,10 @@
 package com.test.tag;
 
-public class IfTag extends TagSupport {
+/**
+ * @author Administrator
+ *
+ */
+public class IfTag extends BaseTagSupport {
 
 	@Override
 	public String tagName() {

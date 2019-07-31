@@ -6,6 +6,10 @@ import java.util.Map;
 /**
  * 配置文件或模板中的占位符替换工具类
  */
+/**
+ * @author Administrator
+ *
+ */
 public class PlaceholderUtils {
 
 	/**
@@ -49,7 +53,7 @@ public class PlaceholderUtils {
 
 	public static void main(String[] args) {
 		String aa = "我们都是好孩子,${p.num}说是嘛？ 我觉得${p.a.people}是傻蛋,我觉得${people}是傻蛋!";
-		Map<String, String> map = new HashMap<String, String>();
+		Map<String, String> map = new HashMap<String, String>(2);
 		map.put("p.num", "小二比");
 		map.put("p.a.people", "xxxx");
 		map.put("people", "小明");

@@ -21,23 +21,27 @@ import org.dom4j.Element;
 
 import com.googlecode.aviator.AviatorEvaluator;
 import com.googlecode.aviator.Expression;
-import com.test.KV;
+import com.test.Kv;
+import com.test.tag.BaseTagSupport;
 import com.test.tag.ChooseTag;
 import com.test.tag.ForEachTag;
 import com.test.tag.IfTag;
 import com.test.tag.OutTag;
-import com.test.tag.TagSupport;
 import com.test.tools.ReflectUtils;
 import com.test.tools.StringUtils;
 
+/**
+ * @author Administrator
+ *
+ */
 public class PageRendering {
 
 	private static Map<String,Object> context = new HashMap<String, Object>();
 	static {
-		List<Object> kvList = Arrays.asList(new KV("01", "值1"), new KV("02", "值2"), new KV("03", "值3"),
-				new KV("04", "值4"), new KV("05", "值5"), new KV("06", "值61"));
+		List<Object> kvList = Arrays.asList(new Kv("01", "值1"), new Kv("02", "值2"), new Kv("03", "值3"),
+				new Kv("04", "值4"), new Kv("05", "值5"), new Kv("06", "值61"));
 		context.put("kvList", kvList);
-		context.put("kv",  new KV(5,"05", "值5"));
+		context.put("kv",  new Kv(5,"05", "值5"));
 		context.put("salary", "10000");
 		context.put("num", 1000);
 		context.put("name", "张安");
@@ -46,8 +50,10 @@ public class PageRendering {
 	public static void render(String cxtPath) {
 		try {
 			InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(cxtPath);
-			InputStreamReader reader = new InputStreamReader(is); // 建立一个输入流对象reader
-			BufferedReader br = new BufferedReader(reader); // 建立一个对象，它把文件内容转成计算机能读懂的语言
+			// 建立一个输入流对象reader
+			InputStreamReader reader = new InputStreamReader(is); 
+			// 建立一个对象，它把文件内容转成计算机能读懂的语言
+			BufferedReader br = new BufferedReader(reader); 
 			StringBuilder sbf = new StringBuilder();
 			String tempStr;
 			while ((tempStr = br.readLine()) != null) {
@@ -64,103 +70,36 @@ public class PageRendering {
 	}
 
 	private static String handleHtml(String html) {
-		html = handleTags(html,TagSupport.FOREACH_TAG);
-		html = handleTags(html,TagSupport.OUT_TAG);
-		html = handleTags(html,TagSupport.CHOOSE_TAG);
-		html = handleTags(html,TagSupport.IF_TAG);
+		html = handleTags(html,BaseTagSupport.FOREACH_TAG);
+		html = handleTags(html,BaseTagSupport.OUT_TAG);
+		html = handleTags(html,BaseTagSupport.CHOOSE_TAG);
+		html = handleTags(html,BaseTagSupport.IF_TAG);
 		return html;
 	}
 
 	@SuppressWarnings("unchecked")
-	private static String handleTags(String html,TagSupport tagSupport) {
+	private static String handleTags(String html,BaseTagSupport tagSupport) {
 		String tag = tagSupport.tagName();
-		String JAVARGGEX = "(<" + tag + ")([\\s\\S]*?)(</" + tag + ">)";
-		Pattern pattern = Pattern.compile(JAVARGGEX);
+		String javaRggex = "(<" + tag + ")([\\s\\S]*?)(</" + tag + ">)";
+		Pattern pattern = Pattern.compile(javaRggex);
 		Matcher matcher = pattern.matcher(html);
 		while (matcher.find()) {
 			String tagHtml = matcher.group();
 			Document doc = null;
 			StringBuilder sb = new StringBuilder();
 			try {
-				doc = DocumentHelper.parseText(tagHtml); // 将字符串转为XML
-				Element rootElt = doc.getRootElement(); // 获取根节点
+				// 将字符串转为XML
+				doc = DocumentHelper.parseText(tagHtml); 
+				// 获取根节点
+				Element rootElt = doc.getRootElement(); 
 				if(tagSupport instanceof ForEachTag) {
-					Iterator<?> iter = rootElt.elementIterator();
-					String items = rootElt.attributeValue("items");
-					items = items.split("}")[0].substring(items.indexOf("{") + 1).trim();
-					String var = rootElt.attributeValue("var").trim();
-					List<Object> kvList = (List<Object>) context.get(items);
-					// 遍历子节点
-					while (iter.hasNext()) {
-						Element recordEle = (Element) iter.next();
-						String innerHtml = recordEle.asXML();
-						if (kvList != null && kvList.size() > 0) {
-							for (Object data : kvList) {
-								sb.append(handleExpression(innerHtml, var, data));
-							}
-						}
-					}
+					doForEachTag(sb, rootElt);
 				}else if(tagSupport instanceof OutTag) {
-					String value = StringUtils.get$StrValue(rootElt.attributeValue("value"));
-					String data = (String) context.get(value);
-					sb.append(handleExpression(rootElt.asXML(),data));
+					doOutTag(sb, rootElt);
 				}else if(tagSupport instanceof IfTag) {
-					String testExpress = rootElt.attributeValue("test");
-					String test = StringUtils.get$StrValue(testExpress);
-					
-					if(test.contains(".")) {
-						test=test.split("\\.")[0];
-					}
-					
-					Object data = context.get(test);
-					String ex=testExpress.replace("${","").replace("}", "");
-					// 遍历子节点
-					Iterator<?> iter = rootElt.elementIterator();
-					while (iter.hasNext()) {
-						Element recordEle = (Element) iter.next();
-						String innerHtml = recordEle.asXML();
-						if(excuteTest(data,ex, test)) {
-							sb.append(innerHtml);
-						}else {
-							sb.append("");
-						}
-					}
+					doIfTag(sb, rootElt);
 				}else if(tagSupport instanceof ChooseTag) {
-					// 遍历子节点
-					Boolean doOtherWise=false;
-					Iterator<?> iter = rootElt.elementIterator();
-					while (iter.hasNext()) {
-						Element recordEle = (Element) iter.next();
-						if(recordEle.getName().equals("when")) {
-							String testExpress = recordEle.attributeValue("test");
-							String test = StringUtils.get$StrValue(testExpress);
-							
-							if(test.contains(".")) {
-								test=test.split("\\.")[0];
-							}
-							
-							Object data = context.get(test);
-							String ex=testExpress.replace("${","").replace("}", "");
-							// 遍历子节点
-							Iterator<?> iterChild = recordEle.elementIterator();
-							while (iterChild.hasNext()) {
-								Element childEle = (Element) iterChild.next();
-								String innerHtml = childEle.asXML();
-								if(excuteTest(data,ex, test)) {
-									sb.append(innerHtml);
-								}else {
-									doOtherWise=true;
-									sb.append("");
-								}
-							}
-						}if(recordEle.getName().equals("otherwise")) {
-							if(doOtherWise) {
-								// 遍历子节点
-								String innerHtml = recordEle.asXML();
-								sb.append(innerHtml);
-							}
-						}
-					}
+					doChooseTag(sb, rootElt);
 				}
 				html = html.replace(tagHtml, sb.toString());
 			} catch (Exception e) {
@@ -169,35 +108,120 @@ public class PageRendering {
 		}
 		return html;
 	}
+
+	private static void doChooseTag(StringBuilder sb, Element rootElt) {
+		// 遍历子节点
+		Boolean doOtherWise=false;
+		Iterator<?> iter = rootElt.elementIterator();
+		while (iter.hasNext()) {
+			Element recordEle = (Element) iter.next();
+			if("when".equals(recordEle.getName())) {
+				String testExpress = recordEle.attributeValue("test");
+				String test = StringUtils.getStrValue(testExpress);
+				
+				if(test.contains(".")) {
+					test=test.split("\\.")[0];
+				}
+				
+				Object data = context.get(test);
+				String ex=testExpress.replace("${","").replace("}", "");
+				// 遍历子节点
+				Iterator<?> iterChild = recordEle.elementIterator();
+				while (iterChild.hasNext()) {
+					Element childEle = (Element) iterChild.next();
+					String innerHtml = childEle.asXML();
+					if(excuteTest(data,ex, test)) {
+						sb.append(innerHtml);
+					}else {
+						doOtherWise=true;
+						sb.append("");
+					}
+				}
+			}if("otherwise".equals(recordEle.getName())) {
+				if(doOtherWise) {
+					// 遍历子节点
+					String innerHtml = recordEle.asXML();
+					sb.append(innerHtml);
+				}
+			}
+		}
+	}
+
+	private static void doIfTag(StringBuilder sb, Element rootElt) {
+		String testExpress = rootElt.attributeValue("test");
+		String test = StringUtils.getStrValue(testExpress);
+		String token= ".";
+		if(test.contains(token)) {
+			test=test.split("\\.")[0];
+		}
+		
+		Object data = context.get(test);
+		String ex=testExpress.replace("${","").replace("}", "");
+		// 遍历子节点
+		Iterator<?> iter = rootElt.elementIterator();
+		while (iter.hasNext()) {
+			Element recordEle = (Element) iter.next();
+			String innerHtml = recordEle.asXML();
+			if(excuteTest(data,ex, test)) {
+				sb.append(innerHtml);
+			}else {
+				sb.append("");
+			}
+		}
+	}
+
+	private static void doOutTag(StringBuilder sb, Element rootElt) {
+		String value = StringUtils.getStrValue(rootElt.attributeValue("value"));
+		String data = (String) context.get(value);
+		sb.append(handleExpression(rootElt.asXML(),data));
+	}
+
+	private static void doForEachTag(StringBuilder sb, Element rootElt) {
+		Iterator<?> iter = rootElt.elementIterator();
+		String items = rootElt.attributeValue("items");
+		items = items.split("}")[0].substring(items.indexOf("{") + 1).trim();
+		String var = rootElt.attributeValue("var").trim();
+		List<Object> kvList = (List<Object>) context.get(items);
+		// 遍历子节点
+		while (iter.hasNext()) {
+			Element recordEle = (Element) iter.next();
+			String innerHtml = recordEle.asXML();
+			if (kvList != null && kvList.size() > 0) {
+				for (Object data : kvList) {
+					sb.append(handleExpression(innerHtml, var, data));
+				}
+			}
+		}
+	}
 	private static boolean excuteTest(Object arg1, String test,String alias) {
 		if(ReflectUtils.isBaseType(arg1)) {
 			Expression compiledExp = AviatorEvaluator.compile(test);
-			Map<String, Object> env = new HashMap<String, Object>();
+			Map<String, Object> env = new HashMap<String, Object>(1);
 			env.put(alias, arg1);
 			return (boolean) compiledExp.execute(env);
 		}else {
-			Map<String, Object> env = new HashMap<String, Object>();
+			Map<String, Object> env = new HashMap<String, Object>(1);
 			env.put(alias, arg1);
 			return (boolean) AviatorEvaluator.execute(test, env);
 		}
 	}
-	private static Object handleExpression(String asXML,String data) {
-		asXML = asXML.replace(asXML, String.valueOf(data));
-		return asXML;
+	private static Object handleExpression(String xml,String data) {
+		xml = xml.replace(xml, String.valueOf(data));
+		return xml;
 	}
 
 	public static String handleExpression(String innerHtml, String var, Object data) {
-		String JAVARGGEX = "\\$\\{[^}]+\\}";
-		Pattern pattern = Pattern.compile(JAVARGGEX);
+		String javaRggex = "\\$\\{[^}]+\\}";
+		Pattern pattern = Pattern.compile(javaRggex);
 		Matcher matcher = pattern.matcher(innerHtml);
 		while (matcher.find()) {
-			String name_old = matcher.group();
-			String name = name_old;
+			String nameOld = matcher.group();
+			String name = nameOld;
 			name = name.split("}")[0].substring(name.indexOf("{") + 1).trim();
 			String[] express = name.split("\\.");
 			if (var.equals(express[0])) {
 				Object value = ReflectUtils.invokeGet(data, express[1]);
-				innerHtml = innerHtml.replace(name_old, String.valueOf(value));
+				innerHtml = innerHtml.replace(nameOld, String.valueOf(value));
 			} else {
 				continue;
 			}
@@ -210,12 +234,14 @@ public class PageRendering {
 	 */
 	public static void writeFile(String context) {
 		try {
-			File writeName = new File("src\\main\\java\\output.html"); // 相对路径，如果没有则要建立一个新的output.txt文件
-			writeName.createNewFile(); // 创建新文件,有同名的文件的话直接覆盖
+			File writeName = new File("src\\main\\java\\output.html"); 
+			//创建新文件,有同名的文件的话直接覆盖
+			writeName.createNewFile();
 			FileWriter writer = new FileWriter(writeName);
 			BufferedWriter out = new BufferedWriter(writer);
 			out.write(context);
-			out.flush(); // 把缓存区内容压入文件
+			// 把缓存区内容压入文件
+			out.flush(); 
 			out.close();
 		} catch (IOException e) {
 			e.printStackTrace();

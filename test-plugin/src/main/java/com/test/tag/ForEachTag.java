@@ -1,6 +1,10 @@
 package com.test.tag;
 
-public class ForEachTag extends TagSupport {
+/**
+ * @author Administrator
+ *
+ */
+public class ForEachTag extends BaseTagSupport {
 
 	@Override
 	public String tagName() {

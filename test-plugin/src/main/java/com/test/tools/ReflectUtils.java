@@ -2,6 +2,10 @@ package com.test.tools;
 
 import java.lang.reflect.Method;
 
+/**
+ * @author Administrator
+ *
+ */
 public class ReflectUtils {
 
 	public static Object invokeGet(Object obj, String keyFiledName) {
