@@ -1,0 +1,6 @@
+projectKey=cn.sogoucloud:sogoucloud-maven-plugin
+serverUrl=http://localhost:9003
+serverVersion=7.4.0.18908
+dashboardUrl=http://localhost:9003/dashboard?id=cn.sogoucloud%3Asogoucloud-maven-plugin
+ceTaskId=AWxGDCYTH6h93ssP5TqL
+ceTaskUrl=http://localhost:9003/api/ce/task?id=AWxGDCYTH6h93ssP5TqL

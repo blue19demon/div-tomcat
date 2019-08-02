@@ -57,8 +57,8 @@ public class ApplicationTest {
 	 */
 	@Test
 	public void exucteLogin() {
-		Object param = LoginRequest.builder().username("jinhjtest")
-				.password("1e6ee5435c63d0018d7633377e1a0523").channelCode("jinhj-002")
+		Object param = LoginRequest.builder().username("")
+				.password("").channelCode("")
 				.build();
 		this.header = null;
 		Response<LoginResponseData> resp = UnirestTools.builder().url(ApiUrls.LOGIN)
